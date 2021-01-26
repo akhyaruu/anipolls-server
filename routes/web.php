@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -17,6 +18,16 @@ use Illuminate\Support\Facades\Route;
 //     return view('welcome');
 // });
 Route::view('/tes', 'top-anime');
+Route::get('/main-dashboard', [AdminController::class, 'indexDashboard']);
+Route::get('/poll/top-anime', [AdminController::class, 'indexTopAnime']);
+Route::post('/poll/top-anime/create', [AdminController::class, 'createAnime']);
+
+
+
+
+
+
+
 
 Route::get('/dashboard', function () {
     return view('dashboard');

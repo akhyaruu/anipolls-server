@@ -20,7 +20,7 @@
          <h6 class="mb-3"><i class="align-middle" data-feather="sliders"></i> Kontrol</h6>
       </div>
       <div>
-         <button type="button" class="btn btn-primary">Tambah Polling</button>
+         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTambah">Tambah Polling</button>
          <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalSeason">Atur Season</button>
       </div>
    </div>
@@ -198,9 +198,9 @@
                   <div class="col-md-6">
                      <select class="form-select" aria-label="Default select example">
                         <option selected>Pilih Season</option>
-                        <option value="1">One</option>
-                        <option value="2">Two</option>
-                        <option value="3">Three</option>
+                        @foreach ($season as $s)
+                        <option value="{{ $s->nama }}">Musim {{ $s->nama }}</option>
+                        @endforeach
                      </select>
                   </div>
                   <div class="col-md-6">
@@ -231,11 +231,65 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
          </div>
          <div class="modal-body">
-            ...
+            <form action="">
+               ...
+               <div class="mt-4 float-right">
+                  <button type="submit" class="btn btn-primary">Simpan</button>
+               </div>
+            </form>
          </div>
-         <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+      </div>
+   </div>
+
+   <!-- Modal tambah polling -->
+   <div class="modal fade" id="modalTambah" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+         <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Masukan Anime Musim Ini Untuk Di Polling</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+         </div>
+         <div class="modal-body px-4">
+            <form action="" id="formPolling">
+               <div class="row">
+                  <div class="col-md-6">
+                     <label class="form-label">Pilih Season</label>
+                     <select class="form-select" aria-label="Default select example">
+                        @foreach ($season as $s)
+                        <option value="{{ $s->nama }}">Musim {{ $s->nama }}</option>
+                        @endforeach
+                     </select>
+                  </div>
+                  <div class="col-md-6">
+                     <label class="form-label">Masukan Tahun</label>
+                     <input class="form-control" type="number" name="tahun" value="{{ date("Y") }}" readonly>
+                  </div>
+               </div>  
+               <h5 class="mt-5 fw-bold text-primary"><b>Masukan Anime</b></h5>
+               <div id="barisAnime">
+                  <div class="row mt-3" id="barisSatu">
+                     <div class="col-md-4">
+                        <label class="form-label">Judul</label>
+                        <input class="form-control" type="text" required>
+                     </div>
+                     <div class="col-md-4">
+                        <label class="form-label">Studio</label>
+                        <input class="form-control" type="text" required>
+                     </div>
+                     <div class="col-md-4">
+                        <label class="form-label">Poster</label>
+                        <input class="form-control" type="file" required>
+                     </div>
+                  </div>
+               </div>
+               <div class="mt-3">
+                  <button id="bTambahBaris" type="button" class="btn btn-outline-primary">Tambah Baris</button>
+               </div>
+               <div class="mt-4 float-right">
+                  <button id="bSubmitPoll" type="button" class="btn btn-primary">Submit</button>
+               </div>
+            </form>
          </div>
       </div>
       </div>
@@ -247,9 +301,63 @@
 
 @section('custom-script')
 <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 <script>
    $(document).ready( function () {
+
+      let inputEmpty;
+      let arrAnime = ['azurlane','haikyuu','fire force'];
+
       $('#list-anime').DataTable();
+
+      $('#bTambahBaris').click(function() {
+         $('#barisSatu').after(`<div class="row mt-3">
+            <div class="col-md-4">
+               <label class="form-label">Judul</label>
+               <input class="form-control" type="text" required>
+            </div>
+            <div class="col-md-4">
+               <label class="form-label">Studio</label>
+               <input class="form-control" type="text" required>
+            </div>
+            <div class="col-md-4">
+               <label class="form-label">Poster</label>
+               <input class="form-control" type="file" required>
+            </div>
+         </div>`);
+      });
+
+      $('#bSubmitPoll').click(function() {
+         $("div#barisAnime :input").each(function(){
+            inputEmpty = this.value ? false : true;
+            console.log(this.value);
+         });
+
+         if(inputEmpty) {
+            Swal.fire({
+               icon: 'error',
+               title: 'Ops...',
+               text: 'Pastikan seluruh input telah dimasukan!'
+            })
+         } else {
+            axios.post('{{ url("poll/top-anime/create") }}', {
+               anime: arrAnime,
+            })
+            .then(function (response) {
+               console.log(response);
+            })
+            .catch(function (error) {
+               console.log(error);
+            });
+
+
+
+         }
+
+      });
+
+
+
    });
 </script>
 @endsection
