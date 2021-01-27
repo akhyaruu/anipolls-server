@@ -1,6 +1,10 @@
 @extends('layouts.dashboard')
 @section('nav-polls', 'active')
 
+@section('custom-meta')
+<meta name="csrf-token" content="{{ csrf_token() }}">
+@endsection
+
 @section('custom-css')
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.css">
 @endsection
@@ -269,18 +273,18 @@
                <h5 class="mt-5 fw-bold text-primary"><b>Masukan Anime</b></h5>
                <div id="barisAnime">
                   <div class="row mt-3" id="barisSatu">
-                     <div class="col-md-4">
+                     <div class="col-md-6">
                         <label class="form-label">Judul</label>
-                        <input class="form-control" type="text" required>
+                        <input class="form-control input-anime" type="text" name="judul" required>
                      </div>
-                     <div class="col-md-4">
+                     <div class="col-md-6">
                         <label class="form-label">Studio</label>
-                        <input class="form-control" type="text" required>
+                        <input class="form-control input-anime" type="text" name="studio" required>
                      </div>
-                     <div class="col-md-4">
+                     {{-- <div class="col-md-4">
                         <label class="form-label">Poster</label>
-                        <input class="form-control" type="file" required>
-                     </div>
+                        <input class="form-control input-anime" type="file" required>
+                     </div> --}}
                   </div>
                </div>
                <div class="mt-3">
@@ -302,35 +306,60 @@
 @section('custom-script')
 <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lodash@4.17.20/lodash.min.js"></script>
+
 <script>
    $(document).ready( function () {
 
+      // prepare
+      
+      axios.defaults.headers.common['X-CSRF-TOKEN'] = $('meta[name="csrf-token"]').attr('content');
+      axios.defaults.headers.post['Content-Type'] = 'application/json';
+
       let inputEmpty;
-      let arrAnime = ['azurlane','haikyuu','fire force'];
+      let arrAnime = [];
+
+      // function 
+      function convertToArrayObject(data) {
+         let keys = data.shift(), 
+            obj = null,
+            output = [];
+
+         for (i = 0; i < data.length; i++) {
+            obj = {};
+            for (k = 0; k < keys.length; k++) {
+               obj[keys[k]] = data[i][k];
+            }
+            output.push(obj);
+         }
+
+         return output;
+      }
+
+      
+      // action
 
       $('#list-anime').DataTable();
 
       $('#bTambahBaris').click(function() {
          $('#barisSatu').after(`<div class="row mt-3">
-            <div class="col-md-4">
+            <div class="col-md-6">
                <label class="form-label">Judul</label>
-               <input class="form-control" type="text" required>
+               <input class="form-control" type="text" name="judul" required>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-6">
                <label class="form-label">Studio</label>
-               <input class="form-control" type="text" required>
-            </div>
-            <div class="col-md-4">
-               <label class="form-label">Poster</label>
-               <input class="form-control" type="file" required>
+               <input class="form-control" type="text" name="studio" required>
             </div>
          </div>`);
       });
 
       $('#bSubmitPoll').click(function() {
+         arrAnime.splice(0, arrAnime.length);
          $("div#barisAnime :input").each(function(){
             inputEmpty = this.value ? false : true;
-            console.log(this.value);
+            arrAnime.push(this.value);
          });
 
          if(inputEmpty) {
@@ -340,8 +369,11 @@
                text: 'Pastikan seluruh input telah dimasukan!'
             })
          } else {
-            axios.post('{{ url("poll/top-anime/create") }}', {
-               anime: arrAnime,
+            const result = _.chunk(arrAnime,2);
+            result.unshift(["judul", "studio"]);
+            const animeObject = convertToArrayObject(result);
+            axios.post('{{ url("poll/top-anime/store") }}', {
+               anime: JSON.stringify(animeObject),
             })
             .then(function (response) {
                console.log(response);

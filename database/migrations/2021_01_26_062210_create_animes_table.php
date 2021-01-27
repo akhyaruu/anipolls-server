@@ -19,7 +19,7 @@ class CreateAnimesTable extends Migration
             $table->string('studio', 50);
             $table->foreignId('season_id')->constrained('seasons');
             $table->char('tahun', 4);
-            $table->string('poster', 150);
+            $table->string('poster', 150)->nullable($value = true);
             $table->enum('sedang_tayang', ['true', 'false']);
         });
     }

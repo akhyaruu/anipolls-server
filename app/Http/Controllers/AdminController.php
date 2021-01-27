@@ -24,10 +24,10 @@ class AdminController extends Controller
       return view('topanime', compact('season'));
    }
 
-   public function createAnime(Request $request)
+   public function storeAnime(Request $request)
    {
-      $result = $request->anime;
-      dd($result);
+      $data = json_decode($request->anime);
+      var_dump($data);
    }
 
    public function indexKarakter()
