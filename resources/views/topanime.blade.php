@@ -200,7 +200,7 @@
             <form action="">
                <div class="row">
                   <div class="col-md-6">
-                     <select class="form-select" aria-label="Default select example">
+                     <select class="form-select">
                         <option selected>Pilih Season</option>
                         @foreach ($season as $s)
                         <option value="{{ $s->nama }}">Musim {{ $s->nama }}</option>
@@ -208,7 +208,7 @@
                      </select>
                   </div>
                   <div class="col-md-6">
-                     <select class="form-select" aria-label="Default select example">
+                     <select class="form-select">
                         <option selected>Pilih Tahun</option>
                         <option value="1">2017</option>
                         <option value="2">2018</option>
@@ -259,15 +259,15 @@
                <div class="row">
                   <div class="col-md-6">
                      <label class="form-label">Pilih Season</label>
-                     <select class="form-select" aria-label="Default select example">
+                     <select class="form-select" id="seasonAnime">
                         @foreach ($season as $s)
-                        <option value="{{ $s->nama }}">Musim {{ $s->nama }}</option>
+                        <option value="{{ $s->id }}">Musim {{ $s->nama }}</option>
                         @endforeach
                      </select>
                   </div>
                   <div class="col-md-6">
                      <label class="form-label">Masukan Tahun</label>
-                     <input class="form-control" type="number" name="tahun" value="{{ date("Y") }}" readonly>
+                     <input id="tahunAnime" class="form-control" type="number" name="tahun" value="{{ date("Y") }}" readonly>
                   </div>
                </div>  
                <h5 class="mt-5 fw-bold text-primary"><b>Masukan Anime</b></h5>
@@ -369,17 +369,21 @@
                text: 'Pastikan seluruh input telah dimasukan!'
             })
          } else {
+            const season = $('#seasonAnime').val();
+            const tahun = $('#tahunAnime').val()
             const result = _.chunk(arrAnime,2);
             result.unshift(["judul", "studio"]);
             const animeObject = convertToArrayObject(result);
-            axios.post('{{ url("poll/top-anime/store") }}', {
-               anime: JSON.stringify(animeObject),
-            })
+            axios.post('{{ url("poll/top-anime/store") }}', JSON.stringify({
+               anime: animeObject,
+               season: season,
+               tahun: tahun,
+            }) )
             .then(function (response) {
                console.log(response);
             })
             .catch(function (error) {
-               console.log(error);
+               console.log(error.response);
             });
 
 

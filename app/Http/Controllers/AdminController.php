@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Season;
+use App\Models\Anime;
 
 class AdminController extends Controller
 {
@@ -26,8 +27,17 @@ class AdminController extends Controller
 
    public function storeAnime(Request $request)
    {
-      $data = json_decode($request->anime);
-      var_dump($data);
+      $data = $request->input('anime');
+      foreach ($data as $data) {
+         $anime = new Anime;
+         $anime->judul = $data['judul'];
+         $anime->studio = $data['studio'];
+         $anime->season_id = $request->input('season');
+         $anime->tahun = $request->input('tahun');
+         $anime->sedang_tayang = true;
+         $anime->save();
+      }
+      return response()->json(['message' => 'Data berhasil masuk']);
    }
 
    public function indexKarakter()
