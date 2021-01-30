@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Models\Season;
 use App\Models\Anime;
@@ -21,8 +22,11 @@ class AdminController extends Controller
 
    public function indexTopAnime()
    {
-      $season = Season::all();
-      return view('topanime', compact('season'));
+      $anime = DB::table('animes')->join('seasons', 'animes.season_id', '=', 'seasons.id')->where('sedang_tayang', '=', true)->get();
+      $tahun = Anime::select('tahun')->groupBy('tahun')->get();
+      $season = DB::table('animes')->join('seasons', 'animes.season_id', '=', 'seasons.id')->select('animes.season_id','seasons.nama')->groupBy('animes.season_id')->get();
+      $seasonAll = Season::all();
+      return view('topanime', compact('season','anime','tahun','seasonAll'));
    }
 
    public function storeAnime(Request $request)
@@ -37,7 +41,14 @@ class AdminController extends Controller
          $anime->sedang_tayang = true;
          $anime->save();
       }
-      return response()->json(['message' => 'Data berhasil masuk']);
+      Anime::where('season_id', '!=', $request->input('season'))->orWhere('tahun', '!=', $request->input('tahun'))->update(['sedang_tayang' => 'false']);
+   }
+
+   public function adjustAnime(Request $request)
+   {
+      Anime::where('season_id', '=', $request->season)->where('tahun', '=', $request->tahun)->update(['sedang_tayang' => 'true']);
+      Anime::where('season_id', '!=', $request->season)->orWhere('tahun', '!=', $request->tahun)->update(['sedang_tayang' => 'false']);
+      return back()->with('success', 'Season anime berhasil diubah');
    }
 
    public function indexKarakter()

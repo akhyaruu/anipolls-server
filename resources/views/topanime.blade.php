@@ -29,6 +29,19 @@
       </div>
    </div>
 
+   @if (session('success'))
+   <div class="alert alert-success alert-dismissible fade show py-3 px-4" role="alert">
+      {{ session('success') }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+   </div>
+   @endif
+   {{-- @if (session('fail'))
+   <div class="alert alert-danger alert-dismissible fade show py-3 px-4" role="alert">
+      {{ session('fail') }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+   </div>
+   @endif --}}
+
    <div class="row">
       <div class="d-flex">
          <div class="w-100">
@@ -164,18 +177,20 @@
                   </tr>
                </thead>
                <tbody>
+                  @foreach ($anime as $anime)
                   <tr>
-                     <th scope="row">1</th>
-                     <td>Horimiya</td>
-                     <td>CloverWorks</td>
-                     <td>Semi</td>
-                     <td>2017</td>
-                     <td>2017</td>
+                     <th scope="row">{{ $loop->iteration }}</th>
+                     <td>{{ $anime->judul }}</td>
+                     <td>{{ $anime->studio }}</td>
+                     <td>{{ $anime->nama }}</td>
+                     <td>{{ $anime->tahun }}</td>
+                     <td>poster</td>
                      <td>
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalEditAnime">Edit</button>
-                        <button type="button" class="btn btn-outline-danger">Hapus</button>
+                        <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modalEditAnime">Edit</button>
+                        <button type="button" class="btn btn-sm btn-outline-danger">Hapus</button>
                      </td>
                   </tr>
+                  @endforeach
                  
                </tbody>
             </table>
@@ -197,22 +212,23 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
          </div>
          <div class="modal-body">
-            <form action="">
+            <form action="{{ url('/poll/top-anime/adjust') }}" method="POST">
+               @csrf
                <div class="row">
                   <div class="col-md-6">
-                     <select class="form-select">
+                     <select class="form-select" name="season">
                         <option selected>Pilih Season</option>
                         @foreach ($season as $s)
-                        <option value="{{ $s->nama }}">Musim {{ $s->nama }}</option>
+                        <option value="{{ $s->season_id }}">Musim {{ $s->nama }}</option>
                         @endforeach
                      </select>
                   </div>
                   <div class="col-md-6">
-                     <select class="form-select">
+                     <select class="form-select" name="tahun">
                         <option selected>Pilih Tahun</option>
-                        <option value="1">2017</option>
-                        <option value="2">2018</option>
-                        <option value="3">2019</option>
+                        @foreach ($tahun as $th)
+                        <option value="{{ $th->tahun }}">{{ $th->tahun }}</option>
+                        @endforeach
                      </select>
                   </div>
                </div>   
@@ -260,7 +276,7 @@
                   <div class="col-md-6">
                      <label class="form-label">Pilih Season</label>
                      <select class="form-select" id="seasonAnime">
-                        @foreach ($season as $s)
+                        @foreach ($seasonAll as $s)
                         <option value="{{ $s->id }}">Musim {{ $s->nama }}</option>
                         @endforeach
                      </select>
@@ -275,16 +291,12 @@
                   <div class="row mt-3" id="barisSatu">
                      <div class="col-md-6">
                         <label class="form-label">Judul</label>
-                        <input class="form-control input-anime" type="text" name="judul" required>
+                        <input class="form-control input-anime" type="text" name="judul" autocomplete="off" required>
                      </div>
                      <div class="col-md-6">
                         <label class="form-label">Studio</label>
-                        <input class="form-control input-anime" type="text" name="studio" required>
+                        <input class="form-control input-anime" type="text" name="studio" autocomplete="off" required>
                      </div>
-                     {{-- <div class="col-md-4">
-                        <label class="form-label">Poster</label>
-                        <input class="form-control input-anime" type="file" required>
-                     </div> --}}
                   </div>
                </div>
                <div class="mt-3">
@@ -308,6 +320,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.20/lodash.min.js"></script>
+<script src="{{ asset('js/custom.js') }}"></script>
 
 <script>
    $(document).ready( function () {
@@ -320,39 +333,21 @@
       let inputEmpty;
       let arrAnime = [];
 
-      // function 
-      function convertToArrayObject(data) {
-         let keys = data.shift(), 
-            obj = null,
-            output = [];
-
-         for (i = 0; i < data.length; i++) {
-            obj = {};
-            for (k = 0; k < keys.length; k++) {
-               obj[keys[k]] = data[i][k];
-            }
-            output.push(obj);
-         }
-
-         return output;
-      }
-
-      
       // action
 
       $('#list-anime').DataTable();
 
       $('#bTambahBaris').click(function() {
-         $('#barisSatu').after(`<div class="row mt-3">
-            <div class="col-md-6">
-               <label class="form-label">Judul</label>
-               <input class="form-control" type="text" name="judul" required>
-            </div>
-            <div class="col-md-6">
-               <label class="form-label">Studio</label>
-               <input class="form-control" type="text" name="studio" required>
-            </div>
-         </div>`);
+         $('#barisSatu').append(` <div class="row mt-3">
+               <div class="col-md-6">
+                  <label class="form-label">Judul</label>
+                  <input class="form-control input-anime" type="text" name="judul" autocomplete="off" required>
+               </div>
+               <div class="col-md-6">
+                  <label class="form-label">Studio</label>
+                  <input class="form-control input-anime" type="text" name="studio" autocomplete="off" required>
+               </div>
+            </div>`);
       });
 
       $('#bSubmitPoll').click(function() {
@@ -369,21 +364,28 @@
                text: 'Pastikan seluruh input telah dimasukan!'
             })
          } else {
-            const season = $('#seasonAnime').val();
-            const tahun = $('#tahunAnime').val()
             const result = _.chunk(arrAnime,2);
             result.unshift(["judul", "studio"]);
             const animeObject = convertToArrayObject(result);
             axios.post('{{ url("poll/top-anime/store") }}', JSON.stringify({
                anime: animeObject,
-               season: season,
-               tahun: tahun,
+               season: $('#seasonAnime').val(),
+               tahun: $('#tahunAnime').val(),
             }) )
             .then(function (response) {
-               console.log(response);
+               Swal.fire(
+                  'Berhasil!',
+                  'Data berhasil masuk',
+                  'success'
+               );
             })
             .catch(function (error) {
-               console.log(error.response);
+               const responseError = error.message;
+               Swal.fire({
+                  icon: 'error',
+                  title: 'Terjadi Kesalahan!',
+                  text: `${responseError}`
+               })
             });
 
 
