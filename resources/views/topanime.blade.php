@@ -176,17 +176,17 @@
                     <th scope="col">Aksi</th>
                   </tr>
                </thead>
-               <tbody>
+               <tbody id="tBodyAnime">
                   @foreach ($anime as $anime)
                   <tr>
                      <th scope="row">{{ $loop->iteration }}</th>
                      <td>{{ $anime->judul }}</td>
                      <td>{{ $anime->studio }}</td>
-                     <td>{{ $anime->nama }}</td>
+                     <td>{{ $anime->season->nama }}</td>
                      <td>{{ $anime->tahun }}</td>
                      <td>poster</td>
                      <td>
-                        <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modalEditAnime">Edit</button>
+                        <button type="button" class="btn btn-sm btn-primary btn-edit-anime" data-bs-toggle="modal" data-bs-target="#modalEditAnime" value="{{ $anime->id }}">Edit</button>
                         <button type="button" class="btn btn-sm btn-outline-danger">Hapus</button>
                      </td>
                   </tr>
@@ -216,7 +216,7 @@
                @csrf
                <div class="row">
                   <div class="col-md-6">
-                     <select class="form-select" name="season">
+                     <select class="form-select" name="season" id="selectSeason">
                         <option selected>Pilih Season</option>
                         @foreach ($season as $s)
                         <option value="{{ $s->season_id }}">Musim {{ $s->nama }}</option>
@@ -224,7 +224,7 @@
                      </select>
                   </div>
                   <div class="col-md-6">
-                     <select class="form-select" name="tahun">
+                     <select class="form-select" name="tahun" id="selectTahun">
                         <option selected>Pilih Tahun</option>
                         @foreach ($tahun as $th)
                         <option value="{{ $th->tahun }}">{{ $th->tahun }}</option>
@@ -251,10 +251,12 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
          </div>
          <div class="modal-body">
-            <form action="">
-               ...
+            <form id="formPoster">
+               <h5>Masukan poster anime</h5>
+               <input type="file" name="poster" required>
+               <input id="iAnime" type="hidden" name="idanime" value="">
                <div class="mt-4 float-right">
-                  <button type="submit" class="btn btn-primary">Simpan</button>
+                  <button id="bSubmitPoster" type="submit" class="btn btn-primary">Simpan</button>
                </div>
             </form>
          </div>
@@ -271,7 +273,7 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
          </div>
          <div class="modal-body px-4">
-            <form action="" id="formPolling">
+            <form id="formPolling">
                <div class="row">
                   <div class="col-md-6">
                      <label class="form-label">Pilih Season</label>
@@ -324,21 +326,19 @@
 
 <script>
    $(document).ready( function () {
-
-      // prepare
       
       axios.defaults.headers.common['X-CSRF-TOKEN'] = $('meta[name="csrf-token"]').attr('content');
       axios.defaults.headers.post['Content-Type'] = 'application/json';
 
       let inputEmpty;
       let arrAnime = [];
-
-      // action
+      const formPoster = document.getElementById('formPoster');
 
       $('#list-anime').DataTable();
 
       $('#bTambahBaris').click(function() {
-         $('#barisSatu').append(` <div class="row mt-3">
+         $('#barisSatu').append(` 
+            <div class="row mt-3">
                <div class="col-md-6">
                   <label class="form-label">Judul</label>
                   <input class="form-control input-anime" type="text" name="judul" autocomplete="off" required>
@@ -374,8 +374,8 @@
             }) )
             .then(function (response) {
                Swal.fire(
-                  'Berhasil!',
-                  'Data berhasil masuk',
+                  'Data Berhasil Masuk',
+                  'Jangan lupa mengupload tiap poster anime terlebih dahulu!',
                   'success'
                );
             })
@@ -387,12 +387,63 @@
                   text: `${responseError}`
                })
             });
-
-
-
          }
-
       });
+
+      $('#selectSeason').change(function() {
+         const seasonid = $('#selectSeason').val();
+         axios.get(`{{ url('') }}/poll/top-anime/get-year/`+seasonid)
+         .then(function (response) {
+            $('#selectTahun').empty();
+            let output = '';
+            response.data.map(data => {
+               output+=`<option value="${data.tahun}">${data.tahun}</option>`;
+            });
+            $('#selectTahun').append(`
+               <option selected>Pilih Tahun</option>
+               ${output}
+            `);
+         })
+         .catch(function (error) {
+            const responseError = error.message;
+            Swal.fire({
+               icon: 'error',
+               title: 'Terjadi Kesalahan!',
+               text: `${responseError}`
+            })
+         })
+      });
+
+      $("#tBodyAnime").on("click", "button.btn-edit-anime", function() {
+         $("#iAnime").val(this.value);
+      });
+
+      $('#formPoster').submit(function(e) {
+         e.preventDefault();
+         axios({
+            method: 'post',
+            url: '{{ url("/poll/top-anime/store-poster") }}',
+            data: new FormData(formPoster),
+            headers: {'Content-Type': 'multipart/form-data' }
+         })
+         .then(function (response) {
+            Swal.fire({
+               icon: 'success',
+               title: 'Berhasil',
+               text: 'Poster berhasil di upload'
+            })
+         })
+         .catch(function (error) {
+            const responseError = error.message;
+            Swal.fire({
+               icon: 'error',
+               title: 'Terjadi Kesalahan!',
+               text: `${responseError}`
+            })
+         });
+      });
+
+
 
 
 

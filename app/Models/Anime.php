@@ -9,4 +9,10 @@ class Anime extends Model
 {
    use HasFactory;
    public $timestamps = false;
+
+   public function season()
+   {
+       return $this->belongsTo(Season::class);
+   }
+   
 }

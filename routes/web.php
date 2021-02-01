@@ -22,6 +22,9 @@ Route::get('/main-dashboard', [AdminController::class, 'indexDashboard']);
 Route::get('/poll/top-anime', [AdminController::class, 'indexTopAnime']);
 Route::post('/poll/top-anime/store', [AdminController::class, 'storeAnime']);
 Route::post('/poll/top-anime/adjust', [AdminController::class, 'adjustAnime']);
+Route::get('/poll/top-anime/get-year/{seasonid}', [AdminController::class, 'getYear']);
+Route::post('/poll/top-anime/store-poster', [AdminController::class, 'storePoster']);
+
 
 
 

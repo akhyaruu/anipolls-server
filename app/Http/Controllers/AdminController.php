@@ -22,7 +22,7 @@ class AdminController extends Controller
 
    public function indexTopAnime()
    {
-      $anime = DB::table('animes')->join('seasons', 'animes.season_id', '=', 'seasons.id')->where('sedang_tayang', '=', true)->get();
+      $anime = Anime::where('sedang_tayang', '=', true)->get();
       $tahun = Anime::select('tahun')->groupBy('tahun')->get();
       $season = DB::table('animes')->join('seasons', 'animes.season_id', '=', 'seasons.id')->select('animes.season_id','seasons.nama')->groupBy('animes.season_id')->get();
       $seasonAll = Season::all();
@@ -46,9 +46,30 @@ class AdminController extends Controller
 
    public function adjustAnime(Request $request)
    {
-      Anime::where('season_id', '=', $request->season)->where('tahun', '=', $request->tahun)->update(['sedang_tayang' => 'true']);
+      Anime::where('season_id', $request->season)->where('tahun', $request->tahun)->update(['sedang_tayang' => 'true']);
       Anime::where('season_id', '!=', $request->season)->orWhere('tahun', '!=', $request->tahun)->update(['sedang_tayang' => 'false']);
       return back()->with('success', 'Season anime berhasil diubah');
+   }
+
+   public function getYear($seasonid)
+   {
+      $tahun = Anime::select('tahun')->where('season_id', $seasonid)->groupBy('tahun')->get();
+      return response()->json($tahun);
+   }
+
+   public function storePoster(Request $request)
+   {
+      if($request->hasFile('poster')) {
+         $request->validate([
+            'poster'  => 'required|image|mimes:jpeg,png,jpg|max:2048'
+         ]);
+         $ekstensi = $request->poster->getClientOriginalExtension();
+         $namaGambar  = 'anime-'.time(). '.' .$ekstensi;
+         $request->file('poster')->storeAs('poster', $namaGambar);
+         Anime::where('id', $request->idanime)->update(['poster' => $namaGambar]);
+      } else {
+         return response()->json('Pastikan kamu memasukan file poster terlebih dahulu');
+      }
    }
 
    public function indexKarakter()
