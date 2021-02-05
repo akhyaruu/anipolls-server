@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\ApiController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -24,6 +25,11 @@ Route::post('/poll/top-anime/store', [AdminController::class, 'storeAnime']);
 Route::post('/poll/top-anime/adjust', [AdminController::class, 'adjustAnime']);
 Route::get('/poll/top-anime/get-year/{seasonid}', [AdminController::class, 'getYear']);
 Route::post('/poll/top-anime/store-poster', [AdminController::class, 'storePoster']);
+
+
+// consume api
+Route::get('/api/get-anime', [ApiController::class, 'getAnime']);
+Route::post('/api/submit-vote', [ApiController::class, 'submitVote']);
 
 
 

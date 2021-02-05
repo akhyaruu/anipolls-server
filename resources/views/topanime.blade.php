@@ -184,6 +184,7 @@
                      <td>{{ $anime->studio }}</td>
                      <td>{{ $anime->season->nama }}</td>
                      <td>{{ $anime->tahun }}</td>
+                     {{-- <td><img src="{{ asset('poster/'.$anime->poster) }}"></td> --}}
                      <td>poster</td>
                      <td>
                         <button type="button" class="btn btn-sm btn-primary btn-edit-anime" data-bs-toggle="modal" data-bs-target="#modalEditAnime" value="{{ $anime->id }}">Edit</button>
@@ -253,8 +254,8 @@
          <div class="modal-body">
             <form id="formPoster">
                <h5>Masukan poster anime</h5>
-               <input type="file" name="poster" required>
-               <input id="iAnime" type="hidden" name="idanime" value="">
+               <input id="inputPoster" type="file" name="poster" required>
+               <input id="inputIdAnime" type="hidden" name="idanime" value="">
                <div class="mt-4 float-right">
                   <button id="bSubmitPoster" type="submit" class="btn btn-primary">Simpan</button>
                </div>
@@ -350,6 +351,7 @@
             </div>`);
       });
 
+      // submit poll
       $('#bSubmitPoll').click(function() {
          arrAnime.splice(0, arrAnime.length);
          $("div#barisAnime :input").each(function(){
@@ -367,6 +369,13 @@
             const result = _.chunk(arrAnime,2);
             result.unshift(["judul", "studio"]);
             const animeObject = convertToArrayObject(result);
+
+            // console.log(JSON.stringify({
+            //    anime: animeObject,
+            //    season: $('#seasonAnime').val(),
+            //    tahun: $('#tahunAnime').val(),
+            // }));
+
             axios.post('{{ url("poll/top-anime/store") }}', JSON.stringify({
                anime: animeObject,
                season: $('#seasonAnime').val(),
@@ -390,6 +399,7 @@
          }
       });
 
+      // pilih season
       $('#selectSeason').change(function() {
          const seasonid = $('#selectSeason').val();
          axios.get(`{{ url('') }}/poll/top-anime/get-year/`+seasonid)
@@ -415,9 +425,10 @@
       });
 
       $("#tBodyAnime").on("click", "button.btn-edit-anime", function() {
-         $("#iAnime").val(this.value);
+         $("#inputIdAnime").val(this.value);
       });
 
+      // submit poster
       $('#formPoster').submit(function(e) {
          e.preventDefault();
          axios({
@@ -432,6 +443,7 @@
                title: 'Berhasil',
                text: 'Poster berhasil di upload'
             })
+            $('#inputPoster').val('');
          })
          .catch(function (error) {
             const responseError = error.message;

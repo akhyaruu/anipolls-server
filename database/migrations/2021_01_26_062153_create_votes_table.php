@@ -17,7 +17,6 @@ class CreateVotesTable extends Migration
             $table->id();
             $table->enum('gender', ['L', 'P']);
             $table->string('usia', 5);
-            $table->string('negara', 30);
             $table->timestamps();
         });
     }

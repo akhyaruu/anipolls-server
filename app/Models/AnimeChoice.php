@@ -7,5 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class AnimeChoice extends Model
 {
-    use HasFactory;
+   use HasFactory;
+   public $timestamps = false;
 }

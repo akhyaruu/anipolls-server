@@ -72,10 +72,14 @@ class AdminController extends Controller
       }
    }
 
-   public function indexKarakter()
-   {
-       //
-   }
+   // public function jadi()
+   // {
+      
+   //    $vote = new Season;
+   //    $vote->nama = 'Berhasil';
+   //    $vote->save();
+   //    return response()->json('data berhasil masuk');
+   // }
 
    public function indexPasangan()
    {
