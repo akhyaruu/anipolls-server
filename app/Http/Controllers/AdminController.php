@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use App\Models\AnimeChoice;
 use App\Models\Season;
 use App\Models\Anime;
+use App\Models\Vote;
 
 class AdminController extends Controller
 {
@@ -22,11 +24,12 @@ class AdminController extends Controller
 
    public function indexTopAnime()
    {
-      $anime = Anime::where('sedang_tayang', '=', true)->get();
+      $anime = Anime::where('sedang_tayang', true)->get();
       $tahun = Anime::select('tahun')->groupBy('tahun')->get();
       $season = DB::table('animes')->join('seasons', 'animes.season_id', '=', 'seasons.id')->select('animes.season_id','seasons.nama')->groupBy('animes.season_id')->get();
       $seasonAll = Season::all();
-      return view('topanime', compact('season','anime','tahun','seasonAll'));
+      $formSubmit = Vote::count();
+      return view('topanime', compact('season','anime','tahun','seasonAll','formSubmit'));
    }
 
    public function storeAnime(Request $request)
@@ -65,27 +68,50 @@ class AdminController extends Controller
          ]);
          $ekstensi = $request->poster->getClientOriginalExtension();
          $namaGambar  = 'anime-'.time(). '.' .$ekstensi;
-         $request->file('poster')->storeAs('poster', $namaGambar);
+         $request->file('poster')->storeAs('public', $namaGambar);
          Anime::where('id', $request->idanime)->update(['poster' => $namaGambar]);
       } else {
          return response()->json('Pastikan kamu memasukan file poster terlebih dahulu');
       }
    }
 
-   // public function jadi()
-   // {
-      
-   //    $vote = new Season;
-   //    $vote->nama = 'Berhasil';
-   //    $vote->save();
-   //    return response()->json('data berhasil masuk');
-   // }
-
-   public function indexPasangan()
+   public function getStatistic() 
    {
-       //
+      $genderL = DB::table('votes')->join('anime_choices', 'votes.id', '=', 'anime_choices.vote_id')
+         ->join('animes', 'anime_choices.anime_id', '=', 'animes.id')->select('gender')->where('animes.sedang_tayang', 'true')
+         ->where('gender', 'L')->groupBy('gender')->distinct('vote_id')->count();
+      $genderP = DB::table('votes')->join('anime_choices', 'votes.id', '=', 'anime_choices.vote_id')
+         ->join('animes', 'anime_choices.anime_id', '=', 'animes.id')->select('gender')->where('animes.sedang_tayang', 'true')
+         ->where('gender', 'P')->groupBy('gender')->distinct('vote_id')->count();
+      $gender = [$genderL, $genderP];
+
+      $usia1 = DB::table('votes')->join('anime_choices', 'votes.id', '=', 'anime_choices.vote_id')
+         ->join('animes', 'anime_choices.anime_id', '=', 'animes.id')->select('usia')->where('animes.sedang_tayang', 'true')
+         ->where('usia', '14-')->groupBy('usia')->distinct('vote_id')->count();
+      $usia2 = DB::table('votes')->join('anime_choices', 'votes.id', '=', 'anime_choices.vote_id')
+         ->join('animes', 'anime_choices.anime_id', '=', 'animes.id')->select('usia')->where('animes.sedang_tayang', 'true')
+         ->where('usia', '16-24')->groupBy('usia')->distinct('vote_id')->count();
+      $usia3 = DB::table('votes')->join('anime_choices', 'votes.id', '=', 'anime_choices.vote_id')
+         ->join('animes', 'anime_choices.anime_id', '=', 'animes.id')->select('usia')->where('animes.sedang_tayang', 'true')
+         ->where('usia', '24+')->groupBy('usia')->distinct('vote_id')->count();
+      $usia = [$usia1, $usia2, $usia3];
+
+      $getCurrentAiringAnime = Anime::where('sedang_tayang', 'true')->get();
+      $topAnime = $this->getTopAnime($getCurrentAiringAnime);
+
+      return response()->json(compact('gender','usia','topAnime'));
    }
 
+   private function getTopAnime($currentAnime)
+   {
+      $topAnime = [];
+      foreach ($currentAnime as $anime) {
+         $countResult = DB::table('animes')->join('anime_choices', 'animes.id', '=', 'anime_choices.anime_id')
+            ->where('anime_choices.anime_id', $anime['id'])->count();
+         array_push($topAnime, ['judul' => $anime['judul'], 'nilai' => $countResult]);
+      }
+      return $topAnime;
+   }
 
 
 

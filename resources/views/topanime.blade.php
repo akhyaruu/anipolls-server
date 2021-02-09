@@ -51,22 +51,14 @@
                      <div class="card-body">
                         <h5 class="card-title mb-4">Kunjungan</h5>
                         <h1 class="mt-1 mb-3">2.382</h1>
-                        <div class="mb-1">
-                           <span class="text-danger"> <i class="mdi mdi-arrow-bottom-right"></i> -3.65% </span>
-                           <span class="text-muted">Since last week</span>
-                        </div>
                      </div>
                   </div>
                </div>
                <div class="col-sm-4">
                   <div class="card">
                      <div class="card-body">
-                        <h5 class="card-title mb-4">Total Anime</h5>
-                        <h1 class="mt-1 mb-3">14.212</h1>
-                        <div class="mb-1">
-                           <span class="text-success"> <i class="mdi mdi-arrow-bottom-right"></i> 5.25% </span>
-                           <span class="text-muted">Since last week</span>
-                        </div>
+                        <h5 class="card-title mb-4">Total Anime (musim ini)</h5>
+                        <h1 class="mt-1 mb-3">{{ count($anime) }}</h1>
                      </div>
                   </div>
                </div>
@@ -74,12 +66,12 @@
                   <div class="card">
                      <div class="card-body">
                         <h5 class="card-title mb-4">Form Submit</h5>
-                        <h1 class="mt-1 mb-3">$21.300</h1>
-                        <div class="mb-1">
+                        <h1 class="mt-1 mb-3">{{ $formSubmit }}x</h1>
+                        {{-- <div class="mb-1">
                            <span class="text-success"> <i class="mdi mdi-arrow-bottom-right"></i> 6.65% </span>
                            <span class="text-muted">Since last week</span>
                         </div>
-                     </div>
+                     </div> --}}
                   </div>
                </div>
             </div>
@@ -95,8 +87,8 @@
                <h5 class="card-title mb-0">Top Anime</h5>
             </div>
             <div class="card-body py-3">
-               <div class="chart chart-sm">
-                  <canvas id="chartjs-dashboard-line"></canvas>
+               <div class="chart chart-sm mb-4">
+                  <canvas id="chartanime"></canvas>
                </div>
             </div>
          </div>
@@ -108,53 +100,36 @@
          <h6 class="mb-3"><i class="align-middle" data-feather="trending-up"></i> Statistik</h6>
       </div>
 
-      <div class="col-12 col-md-6 col-xxl-3 py-2 d-flex">
-         <div class="card flex-fill">
+      <div class="col-12 col-md-6 col-xxl-3 d-flex">
+         <div class="card flex-fill h-75">
             <div class="card-header">
-
-               <h5 class="card-title mb-0">Usia (pie chart)</h5>
+               <h5 class="card-title mb-0">Gender</h5>
             </div>
             <div class="card-body py-1 d-flex">
                <div class="align-self-center w-100">
                   <div class="chart">
-                     <div id="datetimepicker-dashboard"></div>
+                     <canvas id="chartgender"></canvas>
                   </div>
                </div>
             </div>
          </div>
       </div>  
 
-      <div class="col-12 col-md-6 col-xxl-3 py-2 d-flex">
-         <div class="card flex-fill">
+      <div class="col-12 col-md-6 col-xxl-3 d-flex">
+         <div class="card flex-fill h-75">
             <div class="card-header">
-
-               <h5 class="card-title mb-0">Usia (pie chart)</h5>
+               <h5 class="card-title mb-0">Usia</h5>
             </div>
             <div class="card-body py-1 d-flex">
                <div class="align-self-center w-100">
                   <div class="chart">
-                     <div id="datetimepicker-dashboard"></div>
+                     <canvas id="chartusia"></canvas>
                   </div>
                </div>
             </div>
          </div>
       </div>
 
-   </div>
-
-   <div class="row">
-      <div class="">
-         <div class="card flex-fill w-100">
-            <div class="card-header">
-               <h5 class="card-title mb-0">Negara (bar chart top 10)</h5>
-            </div>
-            <div class="card-body py-3">
-               <div class="chart chart-sm">
-                  <canvas id="chartjs-dashboard-line"></canvas>
-               </div>
-            </div>
-         </div>
-      </div>
    </div>
 
    <div class="row">
@@ -163,7 +138,7 @@
       </div>
 
       <div>
-         <div class="bg-white py-3 px-3 shadow rounded">
+         <div class="bg-white px-3 shadow rounded">
             <table class="table" id="list-anime">
                <thead class="table-dark">
                   <tr>
@@ -184,8 +159,11 @@
                      <td>{{ $anime->studio }}</td>
                      <td>{{ $anime->season->nama }}</td>
                      <td>{{ $anime->tahun }}</td>
-                     {{-- <td><img src="{{ asset('poster/'.$anime->poster) }}"></td> --}}
-                     <td>poster</td>
+                     @if ($anime->poster)
+                     <td><img src="{{ asset('storage/'.$anime->poster) }}" style="max-width: 60px"></td>
+                     @else
+                     <td><p class="text-danger">tidak ada poster</p></td>
+                     @endif
                      <td>
                         <button type="button" class="btn btn-sm btn-primary btn-edit-anime" data-bs-toggle="modal" data-bs-target="#modalEditAnime" value="{{ $anime->id }}">Edit</button>
                         <button type="button" class="btn btn-sm btn-outline-danger">Hapus</button>
@@ -291,7 +269,7 @@
                </div>  
                <h5 class="mt-5 fw-bold text-primary"><b>Masukan Anime</b></h5>
                <div id="barisAnime">
-                  <div class="row mt-3" id="barisSatu">
+                  <div class="row mt-3">
                      <div class="col-md-6">
                         <label class="form-label">Judul</label>
                         <input class="form-control input-anime" type="text" name="judul" autocomplete="off" required>
@@ -323,10 +301,11 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.20/lodash.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
 <script src="{{ asset('js/custom.js') }}"></script>
 
 <script>
-   $(document).ready( function () {
+   $(document).ready(function() {
       
       axios.defaults.headers.common['X-CSRF-TOKEN'] = $('meta[name="csrf-token"]').attr('content');
       axios.defaults.headers.post['Content-Type'] = 'application/json';
@@ -334,11 +313,98 @@
       let inputEmpty;
       let arrAnime = [];
       const formPoster = document.getElementById('formPoster');
+      const chartusia = document.getElementById('chartusia').getContext('2d');
+      const chartgender = document.getElementById('chartgender').getContext('2d');
+      const chartanime = document.getElementById('chartanime').getContext('2d');
+      
+      axios.get('{{ url("poll/top-anime/getstatistic") }}')
+         .then(function (response) {
+            var myChartUsia = new Chart(chartusia, {
+               type: 'pie',
+               data: {
+                  datasets: [{
+                     data: [...response.data.usia],
+                     backgroundColor: [
+                        "#dbe2ef", 
+                        "#3f72af", 
+                        "#112d4e"
+                     ]  
+                  }],
+                  labels: [
+                     '16-',
+                     '16-24',
+                     '24+'
+                  ]
+               }
+            });
+
+            var myChartGender = new Chart(chartgender, {
+               type: 'pie',
+               data: {
+                  datasets: [{
+                     data: [...response.data.gender],
+                     backgroundColor: [
+                        "#4d375d", 
+                        "#eb596e"
+                     ]  
+                  }],
+                  labels: [
+                     'Laki-laki',
+                     'Perempuan'
+                  ]
+               }
+            });
+
+            const topAnime = response.data.topAnime;
+            topAnime.sort(function(a, b) {
+               return b.nilai - a.nilai;
+            });
+            const judul = topAnime.map(anime => anime.judul);
+            const nilai = topAnime.map(anime => anime.nilai);
+            
+            var myChartanime = new Chart(chartanime, {
+               type: 'horizontalBar',
+               data: {
+                  labels: judul,
+                  datasets: [{
+                        label: '',
+                        data: nilai,
+                        backgroundColor: [
+                           'rgba(255, 99, 132, 0.2)',
+                           'rgba(54, 162, 235, 0.2)',
+                           'rgba(255, 206, 86, 0.2)'
+                        ],
+                        borderColor: [
+                           'rgba(255, 99, 132, 1)',
+                           'rgba(54, 162, 235, 1)',
+                           'rgba(255, 206, 86, 1)'
+                        ],
+                        borderWidth: 1
+                  }]
+               },
+               options: {
+                  scales: {
+                        yAxes: [{
+                           ticks: {
+                              beginAtZero: true
+                           }
+                        }]
+                  }
+               }
+            });
+         })
+         .catch(function (error) {
+            Swal.fire({
+               icon: 'error',
+               title: 'Terjadi Kesalahan!',
+               text: `${error.message}`
+            })
+         });
 
       $('#list-anime').DataTable();
 
       $('#bTambahBaris').click(function() {
-         $('#barisSatu').append(` 
+         $('#barisAnime').append(` 
             <div class="row mt-3">
                <div class="col-md-6">
                   <label class="form-label">Judul</label>
@@ -363,18 +429,12 @@
             Swal.fire({
                icon: 'error',
                title: 'Ops...',
-               text: 'Pastikan seluruh input telah dimasukan!'
+               text: 'Pastikan seluruh input telah dimasukan'
             })
          } else {
             const result = _.chunk(arrAnime,2);
             result.unshift(["judul", "studio"]);
             const animeObject = convertToArrayObject(result);
-
-            // console.log(JSON.stringify({
-            //    anime: animeObject,
-            //    season: $('#seasonAnime').val(),
-            //    tahun: $('#tahunAnime').val(),
-            // }));
 
             axios.post('{{ url("poll/top-anime/store") }}', JSON.stringify({
                anime: animeObject,
@@ -384,16 +444,15 @@
             .then(function (response) {
                Swal.fire(
                   'Data Berhasil Masuk',
-                  'Jangan lupa mengupload tiap poster anime terlebih dahulu!',
+                  'Jangan lupa mengupload tiap poster anime terlebih dahulu',
                   'success'
                );
             })
             .catch(function (error) {
-               const responseError = error.message;
                Swal.fire({
                   icon: 'error',
                   title: 'Terjadi Kesalahan!',
-                  text: `${responseError}`
+                  text: `${error.message}`
                })
             });
          }
@@ -415,11 +474,10 @@
             `);
          })
          .catch(function (error) {
-            const responseError = error.message;
             Swal.fire({
                icon: 'error',
                title: 'Terjadi Kesalahan!',
-               text: `${responseError}`
+               text: `${error.message}`
             })
          })
       });
@@ -446,15 +504,19 @@
             $('#inputPoster').val('');
          })
          .catch(function (error) {
-            const responseError = error.message;
             Swal.fire({
                icon: 'error',
                title: 'Terjadi Kesalahan!',
-               text: `${responseError}`
+               text: `${error.message}`
             })
          });
       });
 
+      
+      
+
+
+      
 
 
 
