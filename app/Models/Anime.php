@@ -12,7 +12,7 @@ class Anime extends Model
 
    public function season()
    {
-       return $this->belongsTo(Season::class);
+      return $this->belongsTo(Season::class);
    }
    
 }

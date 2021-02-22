@@ -20,12 +20,21 @@ use Illuminate\Support\Facades\Route;
 // });
 
 Route::get('/main-dashboard', [AdminController::class, 'indexDashboard']);
-Route::get('/poll/top-anime', [AdminController::class, 'indexTopAnime']);
-Route::post('/poll/top-anime/store', [AdminController::class, 'storeAnime']);
-Route::post('/poll/top-anime/adjust', [AdminController::class, 'adjustAnime']);
-Route::get('/poll/top-anime/get-year/{seasonid}', [AdminController::class, 'getYear']);
-Route::post('/poll/top-anime/store-poster', [AdminController::class, 'storePoster']);
-Route::get('/poll/top-anime/getstatistic', [AdminController::class, 'getStatistic']);
+
+Route::prefix('berita')->group(function () {
+   Route::get('/', [AdminController::class, 'indexBerita']);
+});
+
+Route::prefix('poll')->group(function () {
+   Route::get('top-anime', [AdminController::class, 'indexTopAnime']);
+   Route::post('top-anime/store', [AdminController::class, 'storeAnime']);
+   Route::post('top-anime/adjust', [AdminController::class, 'adjustAnime']);
+   Route::get('top-anime/get-year/{seasonid}', [AdminController::class, 'getYear']);
+   Route::post('top-anime/store-poster', [AdminController::class, 'storePoster']);
+   Route::get('top-anime/get-statistic', [AdminController::class, 'getStatistic']);
+   Route::post('top-anime/delete-anime', [AdminController::class, 'deleteAnime']);
+});
+
 
 
 // consume api

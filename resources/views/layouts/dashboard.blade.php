@@ -34,19 +34,19 @@
 					</li>
 
 					<li class="sidebar-item @yield('nav-berita')">
-						<a class="sidebar-link" href="pages-profile.html">
+						<a class="sidebar-link" href="{{ url("berita") }}">
               <i class="align-middle" data-feather="type"></i> <span class="align-middle">Berita</span>
             </a>
 					</li>
 
 					<li class="sidebar-item @yield('nav-polls')">
-						<a href="#auth" data-toggle="collapse" class="sidebar-link collapsed">
+						<a href="#polls" data-toggle="collapse" class="sidebar-link collapsed">
               <i class="align-middle" data-feather="check-circle"></i> <span class="align-middle">Polls</span>
             </a>
-						<ul id="auth" class="sidebar-dropdown list-unstyled collapse " data-parent="#sidebar">
-							<li class="sidebar-item"><a class="sidebar-link" href="pages-sign-in.html">Top Anime</a></li>
-							<li class="sidebar-item"><a class="sidebar-link" href="pages-sign-up.html">Karakter Favorit</a></li>
-							<li class="sidebar-item"><a class="sidebar-link" href="pages-sign-up.html">Pasangan Favorit</a></li>
+						<ul id="polls" class="sidebar-dropdown list-unstyled collapse" data-parent="#sidebar">
+							<li class="sidebar-item"><a class="sidebar-link" href="{{ url("poll/top-anime") }}">Top Anime</a></li>
+							<li class="sidebar-item"><a class="sidebar-link" href="{{ url("poll/karakter-favorit") }}">Karakter Favorit</a></li>
+							<li class="sidebar-item"><a class="sidebar-link" href="{{ url("poll/pasangan-favorit") }}">Pasangan Favorit</a></li>
 						</ul>
 					</li>
 

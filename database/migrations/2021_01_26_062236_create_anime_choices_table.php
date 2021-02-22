@@ -15,7 +15,7 @@ class CreateAnimeChoicesTable extends Migration
    {
       Schema::create('anime_choices', function (Blueprint $table) {
          $table->id();
-         $table->foreignId('anime_id')->constrained('animes');
+         $table->foreignId('anime_id')->constrained('animes')->onDelete('cascade');;
          $table->foreignId('vote_id')->constrained('votes');
       });
    }

@@ -12,8 +12,14 @@ class ApiController extends Controller
 {
    public function getAnime()
    {
-      $anime = Anime::all();
-      return response()->json(['anime' => $anime]);
+      $anime = Anime::where('sedang_tayang', true)->get();
+      $tahun = Anime::where('sedang_tayang', true)->first()->tahun;
+      $season = DB::table('animes')->join('seasons', 'animes.season_id', '=', 'seasons.id')->where('sedang_tayang', true)->first()->nama;
+      return response()->json([
+         'anime' => $anime,
+         'tahun' => $tahun,
+         'season' => $season
+      ]);
    }
 
    public function submitVote(Request $request)

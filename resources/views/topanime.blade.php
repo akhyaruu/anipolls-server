@@ -162,11 +162,15 @@
                      @if ($anime->poster)
                      <td><img src="{{ asset('storage/'.$anime->poster) }}" style="max-width: 60px"></td>
                      @else
-                     <td><p class="text-danger">tidak ada poster</p></td>
+                     <td><p class="text-danger"><i>NULL</i></p></td>
                      @endif
                      <td>
                         <button type="button" class="btn btn-sm btn-primary btn-edit-anime" data-bs-toggle="modal" data-bs-target="#modalEditAnime" value="{{ $anime->id }}">Edit</button>
-                        <button type="button" class="btn btn-sm btn-outline-danger">Hapus</button>
+                        <form action="{{ url('/poll/top-anime/delete-anime')}}" method="post">
+                           @csrf
+                           <input type="hidden" name="animeid" value="{{ $anime->id }}">
+                           <button type="submit" class="btn btn-sm btn-outline-danger">Hapus</button>
+                        </form>
                      </td>
                   </tr>
                   @endforeach
@@ -284,7 +288,7 @@
                   <button id="bTambahBaris" type="button" class="btn btn-outline-primary">Tambah Baris</button>
                </div>
                <div class="mt-4 float-right">
-                  <button id="bSubmitPoll" type="button" class="btn btn-primary">Submit</button>
+                  <button type="submit" class="btn btn-primary">Submit</button>
                </div>
             </form>
          </div>
@@ -317,7 +321,7 @@
       const chartgender = document.getElementById('chartgender').getContext('2d');
       const chartanime = document.getElementById('chartanime').getContext('2d');
       
-      axios.get('{{ url("poll/top-anime/getstatistic") }}')
+      axios.get('{{ url("poll/top-anime/get-statistic") }}')
          .then(function (response) {
             var myChartUsia = new Chart(chartusia, {
                type: 'pie',
@@ -418,7 +422,8 @@
       });
 
       // submit poll
-      $('#bSubmitPoll').click(function() {
+      $('#formPolling').submit(function(e) {
+         e.preventDefault();
          arrAnime.splice(0, arrAnime.length);
          $("div#barisAnime :input").each(function(){
             inputEmpty = this.value ? false : true;

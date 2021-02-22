@@ -9,4 +9,14 @@ class AnimeChoice extends Model
 {
    use HasFactory;
    public $timestamps = false;
+
+   public function anime()
+   {
+      return $this->hasMany(Anime::class);
+   }
+   
+   public function vote()
+   {
+      return $this->hasMany(Vote::class);
+   }
 }

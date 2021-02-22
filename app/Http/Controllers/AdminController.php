@@ -19,7 +19,7 @@ class AdminController extends Controller
 
    public function indexBerita()
    {
-       //
+      return view('berita');
    }
 
    public function indexTopAnime()
@@ -113,6 +113,11 @@ class AdminController extends Controller
       return $topAnime;
    }
 
+   public function deleteAnime(Request $request)
+   {
+      Anime::find($request->animeid)->delete();
+      return back()->with('success', 'Anime berhasil dihapus');
+   }
 
 
    
