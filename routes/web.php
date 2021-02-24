@@ -23,6 +23,7 @@ Route::get('/main-dashboard', [AdminController::class, 'indexDashboard']);
 
 Route::prefix('berita')->group(function () {
    Route::get('/', [AdminController::class, 'indexBerita']);
+   Route::post('/store', [AdminController::class, 'storeBerita']);
 });
 
 Route::prefix('poll')->group(function () {
@@ -39,6 +40,8 @@ Route::prefix('poll')->group(function () {
 
 // consume api
 Route::get('/api/get-anime', [ApiController::class, 'getAnime']);
+Route::get('/api/get-berita/{beritaid}', [ApiController::class, 'getSpesificBerita']);
+Route::get('/api/getall-berita', [ApiController::class, 'getBerita']);
 Route::post('/api/submit-vote', [ApiController::class, 'submitVote']);
 
 

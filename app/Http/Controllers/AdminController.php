@@ -8,6 +8,7 @@ use App\Models\AnimeChoice;
 use App\Models\Season;
 use App\Models\Anime;
 use App\Models\Vote;
+use App\Models\Post;
 
 class AdminController extends Controller
 {
@@ -15,11 +16,6 @@ class AdminController extends Controller
    public function indexDashboard()
    {
       return view('index');
-   }
-
-   public function indexBerita()
-   {
-      return view('berita');
    }
 
    public function indexTopAnime()
@@ -117,6 +113,37 @@ class AdminController extends Controller
    {
       Anime::find($request->animeid)->delete();
       return back()->with('success', 'Anime berhasil dihapus');
+   }
+
+   
+   public function indexBerita()
+   {
+      return view('berita');
+   }
+
+   public function storeBerita(Request $request)
+   {
+      if($request->hasFile('gambar')) {
+         $request->validate([
+            'gambar'  => 'required|image|mimes:jpeg,png,jpg|max:2048'
+         ]);
+         $ekstensi = $request->gambar->getClientOriginalExtension();
+         $namaGambar  = 'berita-'.time(). '.' .$ekstensi;
+         $request->file('gambar')->storeAs('public/berita', $namaGambar);
+
+         $post = new Post;
+         $post->judul = $request->judul;
+         $post->isi = $request->berita;
+         $post->gambar = $namaGambar;
+         $post->created_at = date('d F Y');
+         $post->updated_at = date('d F Y');
+         $post->save();
+         return back()->with('success', 'Berita berhasil diupload');
+      } else {
+         return back()->with('fail', 'Gagal diupload!');
+      }
+
+     
    }
 
 

@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\AnimeChoice;
 use App\Models\Anime;
 use App\Models\Vote;
+use App\Models\Post;
 
 class ApiController extends Controller
 {
@@ -36,7 +37,18 @@ class ApiController extends Controller
          $choice->vote_id = $vote->id;
          $choice->save();
       }
-   
+   }
+
+   public function getBerita()
+   {
+      $post = Post::all();
+      return response()->json(['berita' => $post]);
+   }
+
+   public function getSpesificBerita($id)
+   {
+      $post = Post::where('id', $id)->first();
+      return response()->json(['berita' => $post]);
    }
 
 }
