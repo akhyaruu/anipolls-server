@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Models\AnimeChoice;
@@ -135,6 +136,7 @@ class AdminController extends Controller
          $post->judul = $request->judul;
          $post->isi = $request->berita;
          $post->gambar = $namaGambar;
+         $post->user_id = Auth::id();
          $post->created_at = date('d F Y');
          $post->updated_at = date('d F Y');
          $post->save();

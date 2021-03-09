@@ -18,6 +18,7 @@ class CreatePostsTable extends Migration
             $table->string('judul', 150);
             $table->text('isi');
             $table->string('gambar', 150)->nullable();
+            $table->foreignId('user_id')->constrained('users');
             $table->string('created_at');
             $table->string('updated_at');
         });

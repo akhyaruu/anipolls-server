@@ -19,22 +19,27 @@ use Illuminate\Support\Facades\Route;
 //     return view('welcome');
 // });
 
-Route::get('/main-dashboard', [AdminController::class, 'indexDashboard']);
+Route::middleware(['auth'])->group(function () {
+   Route::get('/main-dashboard', [AdminController::class, 'indexDashboard']);
 
-Route::prefix('berita')->group(function () {
-   Route::get('/', [AdminController::class, 'indexBerita']);
-   Route::post('/store', [AdminController::class, 'storeBerita']);
+   Route::prefix('berita')->group(function () {
+      Route::get('/', [AdminController::class, 'indexBerita']);
+      Route::post('/store', [AdminController::class, 'storeBerita']);
+   });
+   
+   Route::prefix('poll')->group(function () {
+      Route::get('top-anime', [AdminController::class, 'indexTopAnime']);
+      Route::post('top-anime/store', [AdminController::class, 'storeAnime']);
+      Route::post('top-anime/adjust', [AdminController::class, 'adjustAnime']);
+      Route::get('top-anime/get-year/{seasonid}', [AdminController::class, 'getYear']);
+      Route::post('top-anime/store-poster', [AdminController::class, 'storePoster']);
+      Route::get('top-anime/get-statistic', [AdminController::class, 'getStatistic']);
+      Route::post('top-anime/delete-anime', [AdminController::class, 'deleteAnime']);
+   });
+   
 });
 
-Route::prefix('poll')->group(function () {
-   Route::get('top-anime', [AdminController::class, 'indexTopAnime']);
-   Route::post('top-anime/store', [AdminController::class, 'storeAnime']);
-   Route::post('top-anime/adjust', [AdminController::class, 'adjustAnime']);
-   Route::get('top-anime/get-year/{seasonid}', [AdminController::class, 'getYear']);
-   Route::post('top-anime/store-poster', [AdminController::class, 'storePoster']);
-   Route::get('top-anime/get-statistic', [AdminController::class, 'getStatistic']);
-   Route::post('top-anime/delete-anime', [AdminController::class, 'deleteAnime']);
-});
+
 
 
 

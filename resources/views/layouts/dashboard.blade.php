@@ -28,7 +28,7 @@
 					</li>
 
 					<li class="sidebar-item @yield('nav-main')">
-						<a class="sidebar-link" href="index.html">
+						<a class="sidebar-link" href="{{ url("main-dashboard") }}">
               <i class="align-middle" data-feather="sliders"></i> <span class="align-middle">Dashboard</span>
             </a>
 					</li>
@@ -223,7 +223,11 @@
 							<div class="dropdown-menu dropdown-menu-right">
 								<a class="dropdown-item" href="pages-profile.html"><i class="align-middle mr-1" data-feather="user"></i> Profil</a>
 								<div class="dropdown-divider"></div>
-								<a class="dropdown-item" href="#"><i class="align-middle mr-1" data-feather="log-out"></i> Logout</a>
+                        <form action="{{ route('logout') }}" method="POST">
+                           @csrf
+                           {{-- <a class="dropdown-item"><i class="align-middle mr-1" data-feather="log-out"></i> Keluar</a> --}}
+                           <button type="submit" class="btn dropdown-item"><i class="align-middle mr-1" data-feather="log-out"></i> Keluar</button>
+                        </form>
 							</div>
 						</li>
 					</ul>
